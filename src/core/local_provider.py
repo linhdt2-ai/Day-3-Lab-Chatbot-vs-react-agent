@@ -1,7 +1,15 @@
 import time
 import os
 from typing import Dict, Any, Optional, Generator
-from llama_cpp import Llama
+try:
+    from llama_cpp import Llama
+    HAS_LLAMA_CPP = True
+except ImportError:
+    HAS_LLAMA_CPP = False
+    class Llama:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("llama-cpp-python library is not installed. Please run 'pip install llama-cpp-python' to use the offline CPU provider.")
+
 from src.core.llm_provider import LLMProvider
 
 class LocalProvider(LLMProvider):
