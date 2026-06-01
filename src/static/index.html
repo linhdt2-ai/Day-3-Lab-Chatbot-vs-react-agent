@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VinWonders AI Assistant - Hệ thống ReAct Agent</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for modern premium icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        
+        <!-- SIDEBAR -->
+        <aside class="app-sidebar" id="sidebar-panel">
+            <div class="sidebar-header">
+                <div class="app-logo">
+                    <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+                    <span>VinWonders <span class="highlight">AI</span></span>
+                </div>
+            </div>
+
+            <!-- TAB NAVIGATION SWITCH -->
+            <div class="nav-tabs">
+                <button class="nav-tab-btn active" id="tab-btn-chat" onclick="switchTab('chat')">
+                    <i class="fa-solid fa-comments"></i> Trò chuyện
+                </button>
+                <button class="nav-tab-btn" id="tab-btn-dashboard" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </button>
+            </div>
+
+            <!-- CONFIGURATION SECTION -->
+            <div class="sidebar-section">
+                <div class="section-title">Cấu hình Hệ thống</div>
+                
+                <div class="form-group">
+                    <label for="provider-select"><i class="fa-solid fa-brain"></i> LLM Provider</label>
+                    <select id="provider-select" class="sidebar-select" onchange="onConfigChange()">
+                        <option value="google" selected>Google Gemini (Flash)</option>
+                        <option value="openai">OpenAI (GPT-4o)</option>
+                        <option value="local">Local Model (Phi-3 CPU)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-sliders"></i> Chế độ hoạt động</label>
+                    <div class="toggle-pill-container">
+                        <button class="toggle-pill-btn active" id="mode-btn-react" onclick="switchMode('react')">
+                            ReAct Agent
+                        </button>
+                        <button class="toggle-pill-btn" id="mode-btn-baseline" onclick="switchMode('baseline')">
+                            Baseline Chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAT HISTORY SECTION -->
+            <div class="sidebar-section history-section">
+                <div class="section-header">
+                    <span class="section-title">Lịch sử hội thoại</span>
+                    <button class="action-icon-btn" id="clear-history-btn" onclick="clearAllHistory()" title="Xóa toàn bộ lịch sử">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </div>
+                <div class="history-list" id="sessions-list">
+                    <div class="loading-history"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải lịch sử...</div>
+                </div>
+            </div>
+
+            <!-- FOOTER CONTROLS -->
+            <div class="sidebar-footer">
+                <button class="new-chat-btn" id="new-chat-btn" onclick="startNewChat()">
+                    <i class="fa-solid fa-plus"></i> Hội thoại mới
+                </button>
+                <div class="theme-toggle" onclick="toggleTheme()" title="Thay đổi giao diện Sáng/Tối">
+                    <i class="fa-solid fa-moon theme-icon" id="theme-indicator"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN PANEL -->
+        <main class="app-main-content">
+            
+            <!-- VIEW 1: CHAT WORKSPACE -->
+            <section class="view-panel active" id="view-chat">
+                <header class="workspace-header">
+                    <div class="workspace-title-info">
+                        <h1 id="chat-title">VinWonders AI Assistant</h1>
+                        <p class="subtitle" id="chat-subtitle">Hệ thống trợ lý ảo thông minh phục vụ tra cứu VinWonders Nam Hội An</p>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="status-dot green"></span>
+                        <span class="status-text" id="status-model-text">Gemini 2.5 - ReAct Loop Active</span>
+                    </div>
+                </header>
+
+                <div class="chat-container" id="chat-messages-container">
+                    
+                    <!-- WELCOME MESSAGE & SUGGESTION CHIPS -->
+                    <div class="welcome-screen" id="welcome-screen">
+                        <div class="welcome-icon">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <h2>Xin chào! Tôi có thể giúp gì cho bạn hôm nay?</h2>
+                        <p>Tôi là trợ lý AI được tích hợp hệ thống suy luận ReAct Agent có khả năng truy cập các công cụ tra cứu thông tin thực tế về VinWonders Nam Hội An.</p>
+                        
+                        <div class="suggestion-section">
+                            <div class="suggestion-title">Đề xuất câu hỏi tra cứu nhanh:</div>
+                            <div class="suggestion-grid">
+                                <div class="suggestion-card" onclick="useSuggestion('Có những trò chơi nào trong phân khu Thế giới nước?')">
+                                    <i class="fa-solid fa-water"></i>
+                                    <span>Trò chơi trong Thế giới nước</span>
+                                </div>
+                                <div class="suggestion-card" onclick="useSuggestion('Bé nhà mình cao 1m3 và nặng 35kg có được chơi trò Đường trượt Siêu tốc không?')">
+                                    <i class="fa-solid fa-person-running"></i>
+                                    <span>Kiểm tra điều kiện chơi cho bé</span>
+                                </div>
+                                <div class="suggestion-card" onclick="useSuggestion('Giá vé vào cổng được tính thế nào dựa vào chiều cao?')">
+                                    <i class="fa-solid fa-ticket"></i>
+                                    <span>Tra cứu giá vé vào cổng</span>
+                                </div>
+                                <div class="suggestion-card" onclick="useSuggestion('Tìm thông tin chi tiết về trò chơi Cơn lốc sa mạc')">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <span>Chi tiết trò Cơn lốc sa mạc</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- LOADING INDICATOR -->
+                <div class="agent-thinking-indicator" id="thinking-indicator" style="display: none;">
+                    <div class="avatar thinking-avatar">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div class="thinking-bubble">
+                        <div class="thinking-text" id="thinking-text">Agent đang suy nghĩ & tra cứu dữ liệu...</div>
+                        <div class="loader-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHAT INPUT SECTION -->
+                <footer class="chat-input-bar">
+                    <form id="chat-form" class="chat-form-container" onsubmit="handleChatSubmit(event)">
+                        <input type="text" id="user-input-field" placeholder="Hỏi tôi về trò chơi, chiều cao, giá vé hoặc điều kiện tham gia tại VinWonders Nam Hội An..." autocomplete="off">
+                        <button type="submit" class="send-message-btn" id="send-btn" title="Gửi tin nhắn">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </footer>
+            </section>
+
+            <!-- VIEW 2: TELEMETRY DASHBOARD -->
+            <section class="view-panel" id="view-dashboard">
+                <header class="workspace-header">
+                    <div class="workspace-title-info">
+                        <h1>Hệ thống Telemetry & Analytics</h1>
+                        <p class="subtitle">Giám sát hiệu suất suy luận, latency và token chi phí của Agent trong thời gian thực</p>
+                    </div>
+                    <button class="refresh-dashboard-btn" onclick="fetchDashboardData()">
+                        <i class="fa-solid fa-arrows-rotate"></i> Làm mới
+                    </button>
+                </header>
+
+                <div class="dashboard-grid">
+                    
+                    <!-- KPI CARDS -->
+                    <div class="dashboard-kpis">
+                        <div class="kpi-card glass-panel violet-glow">
+                            <div class="kpi-icon"><i class="fa-solid fa-message"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-label">Tổng số lượt chat</span>
+                                <h3 class="kpi-value" id="kpi-total-chats">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card glass-panel cyan-glow">
+                            <div class="kpi-icon"><i class="fa-solid fa-bolt"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-label">Latency trung bình</span>
+                                <h3 class="kpi-value" id="kpi-latency">0.0s</h3>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card glass-panel amber-glow">
+                            <div class="kpi-icon"><i class="fa-solid fa-circle-check"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-label">Tỷ lệ thành công</span>
+                                <h3 class="kpi-value" id="kpi-success-rate">0%</h3>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card glass-panel green-glow">
+                            <div class="kpi-icon"><i class="fa-solid fa-dollar-sign"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-label">Chi phí tích lũy</span>
+                                <h3 class="kpi-value" id="kpi-cost">$0.00000</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHARTS & VISUALS -->
+                    <div class="dashboard-visuals">
+                        <!-- TOOL INVOCATION CARD -->
+                        <div class="visual-card glass-panel col-span-2">
+                            <div class="card-header">
+                                <h4><i class="fa-solid fa-gears"></i> Thống kê sử dụng công cụ (Tools Usage)</h4>
+                            </div>
+                            <div class="tools-chart-container" id="tools-chart-bars">
+                                <!-- Dynamically loaded tool frequency bars -->
+                            </div>
+                        </div>
+
+                        <!-- AGENT EXECUTION SUMMARY -->
+                        <div class="visual-card glass-panel">
+                            <div class="card-header">
+                                <h4><i class="fa-solid fa-shield-halved"></i> Tỷ lệ trạng thái Agent</h4>
+                            </div>
+                            <div class="status-summary-list">
+                                <div class="status-item">
+                                    <div class="status-label"><span class="bullet success"></span> Thành công (ReAct Complete)</div>
+                                    <div class="status-val" id="status-cnt-success">0</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-label"><span class="bullet fallback"></span> Thu hồi (Fallback Limit)</div>
+                                    <div class="status-val" id="status-cnt-fallback">0</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-label"><span class="bullet error"></span> Gặp lỗi (Parser/System errors)</div>
+                                    <div class="status-val" id="status-cnt-error">0</div>
+                                </div>
+                                <div class="status-item divider"></div>
+                                <div class="status-item">
+                                    <div class="status-label">Tổng số bước suy luận (Tokens)</div>
+                                    <div class="status-val" id="status-cnt-tokens" style="font-weight: 600; color: var(--color-cyan);">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SYSTEM LIVE LOGSTREAM -->
+                    <div class="visual-card glass-panel col-span-3">
+                        <div class="card-header justify-between">
+                            <h4><i class="fa-solid fa-terminal"></i> Terminal System Logs Stream (Thời gian thực)</h4>
+                            <span class="live-tag"><span class="blink-dot"></span> LIVE</span>
+                        </div>
+                        <div class="terminal-logstream" id="terminal-log-container">
+                            <div class="log-line system">[SYSTEM INITIALIZED] Sẵn sàng thu thập dữ liệu giám sát...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+    <!-- Script Controller -->
+    <script src="index.js"></script>
+</body>
+</html>
