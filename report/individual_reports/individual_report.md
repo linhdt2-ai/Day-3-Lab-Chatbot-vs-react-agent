@@ -1,12 +1,12 @@
 # Individual Report: Lab 3 - Chatbot vs ReAct Agent
+| Mã HV       | Members          | Features                                                           | Files                                                                                                      |
+| ----------- | ---------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| 2A202600900 | Đỗ Đức Tuệ       | Crawl Data, Data Loader                                            | `VinWonders Nam Hoi An - Noi quy tro choi - JSON.csv`<br>`data_loader.py`                                  |
+| 2A202600660 | Nguyễn Hải Quân  | Chatbot Baseline, LLM Loader, Parse Output, Tool Design, Hướng dẫn | `gemini_provider.py`<br>`local_provider.py`<br>`Agent.py`<br>`Vinwonders_tools.py`<br>`HUONG_DAN_DU_AN.md` |
+| 2A202600566 | Hoàng Trọng Vĩnh | API, Metrics                                                       | `app.py`<br>`metrics.py`                                                                                   |
+| 2A202600543 | Đỗ Phan Hà       | UI                                                                 | `index.css`<br>`index.html`<br>`index.js`                                                                  |
+| 2A202600914 | Dương Thế Linh   | Test, Report                                                       | `Test_vinwonders.py`<br>`group_report.md`<br>`individual_report.md`                                        |
 
-| Members | Features | Files |
-|----------|----------|--------|
-| Đỗ Đức Tuệ | Crawl Data, Data Loader | `VinWonders Nam Hoi An - Noi quy tro choi - JSON.csv`<br>`data_loader.py` |
-| Nguyễn Hải Quân | Chatbot Baseline, LLM Loader, Parse Output, Tool Design, Hướng dẫn | `gemini_provider.py`<br>`local_provider.py`<br>`Agent.py`<br>`vinwonders_tools.py`<br>`HUONG_DAN_DU_AN.md` |
-| Hoàng Trọng Vĩnh | API, Metrics | `app.py`<br>`metrics.py` |
-| Đỗ Phan Hà | UI | `index.css`<br>`index.html`<br>`index.js` |
-| Dương Thế Linh | Test, Report | `test_vinwonders.py`<br>`group_report.md`<br>`individual_report.md` |
 ---
 
 ## I. Technical Contribution (15 Points)
